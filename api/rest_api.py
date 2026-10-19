@@ -1,4 +1,4 @@
-from api.config import DEFAULT_USER_ID, REST_BASE_URL
+from api.config import API_PASSWORD, API_USERNAME, DEFAULT_USER_ID, REST_BASE_URL
 from api.http_client import HttpClient
 
 
@@ -14,3 +14,13 @@ class RestApi(HttpClient):
 
     def get_post(self, post_id):
         return self.get(f"/posts/{post_id}")
+
+    def login(self, username=API_USERNAME, password=API_PASSWORD):
+        return self.post("/auth/login", json={"username": username, "password": password})
+
+    def get_me(self, token=None):
+        headers = {"Authorization": f"Bearer {token}"} if token else {}
+        return self.get_me_with_headers(headers)
+
+    def get_me_with_headers(self, headers):
+        return self.get("/auth/me", headers=headers)
