@@ -1,6 +1,10 @@
+import logging
+
 import requests
 
 from api.config import DEFAULT_HEADERS, REQUEST_TIMEOUT
+
+logger = logging.getLogger(__name__)
 
 
 class HttpClient:
@@ -14,7 +18,12 @@ class HttpClient:
     def request(self, method, path, **kwargs):
         url = self.base_url if not path else f"{self.base_url}/{path.lstrip('/')}"
         kwargs.setdefault("timeout", REQUEST_TIMEOUT)
-        return self.session.request(method, url, **kwargs)
+        response = self.session.request(method, url, **kwargs)
+        logger.debug("%s %s", method, url)
+        if response.request.body:
+            logger.debug("Request body: %s", response.request.body)
+        logger.debug("Response %s: %s", response.status_code, response.text)
+        return response
 
     def get(self, path="", **kwargs):
         return self.request("GET", path, **kwargs)
